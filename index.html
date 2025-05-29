@@ -451,14 +451,14 @@
                                 <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Programming Languages</h4>
                                 <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                                     <li>Dart (Expert)</li>
-                                    <li>JavaScript (ES6+) <button class="ai-skill-explain-btn text-xs text-sky-500 dark:text-sky-400 hover:underline ml-1" data-skill="JavaScript ES6+">✨ Explain</button></li>
+                                    <li>JavaScript (ES6+) </li>
                                     <li>Python</li>
                                 </ul>
                             </div>
                             <div>
                                 <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Frontend Technologies (Mobile - Flutter Focus)</h4>
                                 <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
-                                    <li>Flutter <button class="ai-skill-explain-btn text-xs text-sky-500 dark:text-sky-400 hover:underline ml-1" data-skill="Flutter">✨ Explain</button></li>
+                                    <li>Flutter</li>
                                     <li>Provider, BLOC, Riverpod</li>
                                     <li>Material Design, Responsive Design</li>
                                     <li>Flutter Testing Library</li>
@@ -467,7 +467,7 @@
                              <div>
                                 <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Backend Technologies</h4>
                                 <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
-                                    <li>Node.js <button class="ai-skill-explain-btn text-xs text-sky-500 dark:text-sky-400 hover:underline ml-1" data-skill="Node.js">✨ Explain</button></li>
+                                    <li>Node.js</li>
                                     <li>Express.js</li>
                                     <li>RESTful APIs, GraphQL</li>
                                 </ul>
@@ -954,66 +954,7 @@
             }
         }
 
-        // Gemini API call function
-        async function callGeminiAPI(prompt) {
-            const env = await loadEnvVariables();
-            const apiKey = env.GEMINI_API_KEY;
-            if (!apiKey) {
-                return { success: false, error: 'API key not found in environment variables' };
-            }
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }]
-            };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Gemini API Error:', errorData);
-                    return { success: false, error: `API Error: ${errorData.error?.message || response.statusText}` };
-                }
-
-                const result = await response.json();
-                if (result.candidates?.length > 0 && result.candidates[0].content?.parts?.length > 0) {
-                    return { success: true, text: result.candidates[0].content.parts[0].text };
-                } else {
-                    console.error('Gemini API Response Error: Unexpected structure', result);
-                    return { success: false, error: 'Failed to get a valid response from AI.' };
-                }
-            } catch (error) {
-                console.error('Fetch Error calling Gemini API:', error);
-                return { success: false, error: `Network or client-side error: ${error.message}` };
-            }
-        }
-
         // Project section initialization
-
-        // AI Skill Explanation
-        document.querySelectorAll('.ai-skill-explain-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-                const skillName = this.dataset.skill;
-                openAiModal(`AI Explanation for: ${skillName}`);
-                
-                const prompt = `You are a helpful assistant for a developer's interactive CV. Briefly explain the importance and typical use cases of the skill '${skillName}' in modern software development, especially from the perspective of a Full-Stack Developer. Keep it concise (2-4 sentences) and easy to understand for both technical and non-technical viewers. Do not use markdown.`;
-                const result = await callGeminiAPI(prompt);
-
-                aiModalLoadingContainer.classList.add('hidden');
-                if (result.success) {
-                    aiModalContentP.textContent = result.text;
-                    aiModalContentContainer.classList.remove('hidden');
-                } else {
-                    aiModalErrorP.textContent = `Error explaining ${skillName}: ${result.error}`;
-                    aiModalErrorContainer.classList.remove('hidden');
-                }
-            });
-        });
 
         // AOS initialization
         AOS.init({
