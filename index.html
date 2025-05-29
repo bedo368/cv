@@ -18,19 +18,22 @@
     -->
     <style>
         body {
-            font-family: 'Inter', sans-serif; /* Using a common sans-serif font similar to Tailwind's default */
+            font-family: 'Inter', sans-serif;
         }
         .nav-link.active {
             color: #0284c7; /* sky-600 */
             font-weight: 600;
         }
+        .dark .nav-link.active {
+            color: #38bdf8; /* sky-400 */
+        }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px; /* Max width for charts */
+            max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            height: 200px; /* Base height for small charts, adjust as needed */
+            height: 200px; 
             max-height: 250px;
         }
         @media (min-width: 768px) {
@@ -46,76 +49,116 @@
             background-color: #0ea5e9; /* sky-500 */
             margin-top: 8px;
         }
+        .dark .section-title::after {
+            background-color: #38bdf8; /* sky-400 */
+        }
+        /* Ensure chart canvas is visible in dark mode if not styled by JS */
+        .dark canvas {
+             /* border: 1px solid #4b5563; */ /* Optional: if needed for visibility */
+        }
     </style>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-</head>
-<body class="bg-slate-50 text-slate-700 antialiased">
+    <script>
+        // Theme detection and application script (place in head to avoid FOUC)
+        // IIFE to avoid polluting global scope
+        (function() {
+            const getTheme = () => {
+                if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+                    return localStorage.getItem('theme');
+                }
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
 
-    <header id="header" class="bg-slate-50/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+            const theme = getTheme();
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            // Store the initial theme if not already set (e.g., from system preference)
+            if (typeof localStorage !== 'undefined') {
+                 localStorage.setItem('theme', theme);
+            }
+        })();
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300 antialiased transition-colors duration-300">
+
+    <header id="header" class="bg-slate-50/90 dark:bg-slate-800/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
-                    <a href="#hero" class="text-2xl font-bold text-sky-600">Abdullah Attia</a>
+                    <a href="#hero" class="text-2xl font-bold text-sky-600 dark:text-sky-400">Abdullah Attia</a>
                 </div>
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#summary" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Summary</a>
-                    <a href="#skills" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Skills</a>
-                    <a href="#experience" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Experience</a>
-                    <a href="#projects" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Projects</a>
-                    <a href="#education" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Education</a>
-                    <a href="#contact" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
-                </nav>
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-slate-600 hover:text-sky-600 focus:outline-none">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
+                <div class="flex items-center">
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#summary" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Summary</a>
+                        <a href="#skills" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Skills</a>
+                        <a href="#experience" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Experience</a>
+                        <a href="#projects" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Projects</a>
+                        <a href="#education" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Education</a>
+                        <a href="#contact" class="nav-link text-slate-600 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    </nav>
+                    <button id="theme-toggle" type="button" class="ml-4 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:focus:ring-slate-700 rounded-lg text-sm p-2.5">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 011.414-1.414l-.707-.707a1 1 0 01-1.414 1.414l.707.707zM1 11a1 1 0 100-2H0a1 1 0 100 2h1zM4.54 16H6a1 1 0 110-2H4.54a1 1 0 110 2z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                     </button>
+                    <div class="md:hidden ml-2">
+                        <button id="mobile-menu-button" class="text-slate-600 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
         <div id="mobile-menu" class="md:hidden hidden">
             <nav class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#summary" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Summary</a>
-                <a href="#skills" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Skills</a>
-                <a href="#experience" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Experience</a>
-                <a href="#projects" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Projects</a>
-                <a href="#education" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Education</a>
-                <a href="#contact" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+                <a href="#summary" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Summary</a>
+                <a href="#skills" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Skills</a>
+                <a href="#experience" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Experience</a>
+                <a href="#projects" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Projects</a>
+                <a href="#education" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Education</a>
+                <a href="#contact" class="nav-link-mobile text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-sky-400 block px-3 py-2 rounded-md text-base font-medium">Contact</a>
             </nav>
         </div>
     </header>
 
     <main>
-        <section id="hero" class="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-sky-100 via-slate-50 to-amber-50 py-12 px-4 sm:px-6 lg:px-8">
+        <section id="hero" class="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-sky-100 via-slate-50 to-amber-50 dark:from-sky-900 dark:via-slate-800 dark:to-amber-800 py-12 px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-800">
+                <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-800 dark:text-slate-100">
                     Abdullah Attia
                 </h1>
-                <p class="mt-4 text-xl sm:text-2xl text-sky-600 font-semibold">
+                <p class="mt-4 text-xl sm:text-2xl text-sky-600 dark:text-sky-400 font-semibold">
                     Flutter & Node.js Developer
                 </p>
-                <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-600">
+                <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-400">
                     Specializing in building scalable, high-performance, cross-platform mobile applications and robust backend systems.
                 </p>
                 <div class="mt-10 flex justify-center space-x-4">
-                    <a href="https://github.com/bedo368" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 transition-colors">
+                    <a href="https://github.com/bedo368" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
                         GitHub
                     </a>
-                    <a href="#contact" class="inline-flex items-center justify-center px-6 py-3 border border-sky-600 text-base font-medium rounded-md text-sky-600 bg-white hover:bg-sky-50 transition-colors">
+                    <a href="#contact" class="inline-flex items-center justify-center px-6 py-3 border border-sky-600 dark:border-sky-500 text-base font-medium rounded-md text-sky-600 bg-white hover:bg-sky-50 dark:text-sky-400 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
                         Get In Touch
                     </a>
                 </div>
             </div>
         </section>
 
-        <section id="summary" class="py-16 sm:py-20 bg-slate-100">
+        <section id="summary" class="py-16 sm:py-20 bg-slate-100 dark:bg-slate-800">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Professional Summary</h2>
-                <p class="mt-2 text-lg text-center text-slate-600 mb-12">An overview of my expertise and career goals.</p>
-                <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-                    <p class="text-lg text-slate-700 leading-relaxed">
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Professional Summary</h2>
+                <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">An overview of my expertise and career goals.</p>
+                <div class="max-w-3xl mx-auto bg-white dark:bg-slate-700 p-8 rounded-xl shadow-lg">
+                    <p class="text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
                         Highly motivated and results-driven Full-Stack Developer, specializing in Flutter, with extensive experience in building scalable, high-performance, cross-platform mobile applications. Seeking to leverage deep expertise in Flutter, Dart, and modern state management techniques (Provider, BLOC, Riverpod) to contribute to innovative mobile projects. Proven ability to design intuitive UI/UX, optimize application performance by applying known design patterns and algorithms to solve complex problems, and collaborate effectively in Agile environments. Holds a Bachelor's degree in Electrical Engineering.
                     </p>
                 </div>
@@ -124,37 +167,37 @@
 
         <section id="skills" class="py-16 sm:py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Technical Skills</h2>
-                <p class="mt-2 text-lg text-center text-slate-600 mb-12">A detailed look at my technical capabilities and areas of focus.</p>
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Technical Skills</h2>
+                <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">A detailed look at my technical capabilities and areas of focus.</p>
                 
                 <div class="grid md:grid-cols-2 gap-10">
                     <div>
-                        <h3 class="text-xl font-semibold mb-3 text-sky-700">Key Technical Areas</h3>
-                        <div class="chart-container mb-8">
+                        <h3 class="text-xl font-semibold mb-3 text-sky-700 dark:text-sky-400">Key Technical Areas</h3>
+                        <div class="chart-container mb-8 bg-white dark:bg-slate-700 p-4 rounded-lg shadow-md">
                             <canvas id="skillsFocusChart"></canvas>
                         </div>
-                        <p class="text-sm text-slate-500 text-center italic mb-8">Illustrative chart showing relative focus/experience across key development areas.</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 text-center italic mb-8">Illustrative chart showing relative focus/experience across key development areas.</p>
                     </div>
                     <div class="space-y-8">
                         <div>
-                            <h4 class="text-lg font-semibold text-sky-600 mb-2">Programming Languages</h4>
-                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Programming Languages</h4>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                                 <li>Dart (Expert)</li>
                                 <li>JavaScript (ES6+)</li>
                                 <li>Python</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-sky-600 mb-2">Frontend Technologies (Mobile - Flutter Focus)</h4>
-                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Frontend Technologies (Mobile - Flutter Focus)</h4>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                                 <li>Flutter, Provider, BLOC, Riverpod</li>
                                 <li>Material Design, Responsive Design</li>
                                 <li>Flutter Testing Library</li>
                             </ul>
                         </div>
                          <div>
-                            <h4 class="text-lg font-semibold text-sky-600 mb-2">Backend Technologies</h4>
-                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Backend Technologies</h4>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                                 <li>Node.js, Express.js</li>
                                 <li>RESTful APIs, GraphQL</li>
                             </ul>
@@ -163,42 +206,42 @@
                 </div>
 
                 <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">Databases</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Databases</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>MySQL, MongoDB, Firebase</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">Authentication</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Authentication</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>JWT, OAuth2, Firebase Authentication</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">Cloud & DevOps</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Cloud & DevOps</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>AWS EC2/S3, Azure</li>
                             <li>Docker, CI/CD Pipelines (GitHub Actions), Nginx</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">Testing & Tools</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Testing & Tools</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>Flutter Testing Library, Postman, Jest</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">Version Control & Practices</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">Version Control & Practices</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>Git/GitHub, Jira, Figma</li>
                             <li>Agile/Scrum, TDD, OOP, Microservices</li>
                             <li>Design Patterns, Algorithms</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h4 class="text-lg font-semibold text-sky-600 mb-2">UI/UX Design Principles</h4>
-                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-md">
+                        <h4 class="text-lg font-semibold text-sky-600 dark:text-sky-400 mb-2">UI/UX Design Principles</h4>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
                             <li>Responsive Design, Material Design, Prototyping</li>
                         </ul>
                     </div>
@@ -206,15 +249,15 @@
             </div>
         </section>
 
-        <section id="experience" class="py-16 sm:py-20 bg-slate-100">
+        <section id="experience" class="py-16 sm:py-20 bg-slate-100 dark:bg-slate-800">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Professional Experience</h2>
-                <p class="mt-2 text-lg text-center text-slate-600 mb-12">My journey and key contributions in previous roles.</p>
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Professional Experience</h2>
+                <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">My journey and key contributions in previous roles.</p>
                 <div class="max-w-4xl mx-auto">
-                    <div class="bg-white p-8 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-sky-700">CPV Arabia, Baitem</h3>
-                        <p class="text-md text-slate-500 mb-1">Flutter & Node.js Developer | February 2024 - Present</p>
-                        <ul class="mt-4 list-disc list-outside ml-5 space-y-3 text-slate-700 leading-relaxed">
+                    <div class="bg-white dark:bg-slate-700 p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-semibold text-sky-700 dark:text-sky-400">CPV Arabia, Baitem</h3>
+                        <p class="text-md text-slate-500 dark:text-slate-400 mb-1">Flutter & Node.js Developer | February 2024 - Present</p>
+                        <ul class="mt-4 list-disc list-outside ml-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
                             <li>Led the redesign and development of the company's flagship mobile application using Flutter, significantly improving performance by 210% and enhancing UI/UX for over 10,000 active users.</li>
                             <li>Engineered and scaled RESTful APIs with Node.js and Express.js, directly supporting the Flutter application's needs for 50,000+ concurrent users and achieving a 35% reduction in latency.</li>
                             <li>Strengthened mobile application security by implementing JWT-based authentication and OAuth2 integration, resulting in a 40% decrease in identified security vulnerabilities.</li>
@@ -230,81 +273,81 @@
 
         <section id="projects" class="py-16 sm:py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Projects</h2>
-                <p class="mt-2 text-lg text-center text-slate-600 mb-12">A selection of projects I've developed and contributed to.</p>
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Projects</h2>
+                <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">A selection of projects I've developed and contributed to.</p>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
                         <div class="p-6 flex-grow">
-                            <h3 class="text-xl font-semibold text-sky-700 mb-2">E-Commerce Mobile App</h3>
-                            <p class="text-sm text-slate-500 mb-3">(Flutter & Node.js)</p>
-                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 space-y-1">
+                            <h3 class="text-xl font-semibold text-sky-700 dark:text-sky-400 mb-2">E-Commerce Mobile App</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">(Flutter & Node.js)</p>
+                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 dark:text-slate-300 space-y-1">
                                 <li>Spearheaded end-to-end development, resulting in over 10,000 downloads.</li>
                                 <li>Integrated secure payment gateways and real-time analytics.</li>
                             </ul>
                         </div>
-                        <div class="p-4 bg-slate-50 text-xs text-sky-600">Technologies: Flutter, Node.js, Payment Gateways, Analytics</div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-600 text-xs text-sky-600 dark:text-sky-400">Technologies: Flutter, Node.js, Payment Gateways, Analytics</div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
                         <div class="p-6 flex-grow">
-                            <h3 class="text-xl font-semibold text-sky-700 mb-2">Question Builder for Inspection Engineers</h3>
-                             <p class="text-sm text-slate-500 mb-3">(Flutter)</p>
-                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 space-y-1">
+                            <h3 class="text-xl font-semibold text-sky-700 dark:text-sky-400 mb-2">Question Builder for Inspection Engineers</h3>
+                             <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">(Flutter)</p>
+                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 dark:text-slate-300 space-y-1">
                                 <li>Developed a specialized app to streamline site inspections.</li>
                                 <li>Focused on performance and usability for rapid report generation.</li>
                             </ul>
                         </div>
-                        <div class="p-4 bg-slate-50 text-xs text-sky-600">Technologies: Flutter, UI/UX Optimization</div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-600 text-xs text-sky-600 dark:text-sky-400">Technologies: Flutter, UI/UX Optimization</div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
                         <div class="p-6 flex-grow">
-                            <h3 class="text-xl font-semibold text-sky-700 mb-2">End User Application for Project Management</h3>
-                            <p class="text-sm text-slate-500 mb-3">(Flutter)</p>
-                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 space-y-1">
+                            <h3 class="text-xl font-semibold text-sky-700 dark:text-sky-400 mb-2">End User Application for Project Management</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">(Flutter)</p>
+                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 dark:text-slate-300 space-y-1">
                                 <li>Created a client-facing app for project tracking and communication.</li>
                                 <li>Implemented real-time updates, notifications, and status features.</li>
                             </ul>
                         </div>
-                        <div class="p-4 bg-slate-50 text-xs text-sky-600">Technologies: Flutter, Firebase, Real-time Communication</div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-600 text-xs text-sky-600 dark:text-sky-400">Technologies: Flutter, Firebase, Real-time Communication</div>
                     </div>
-                     <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:col-span-2 lg:col-span-1 lg:col-start-2">
+                     <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col md:col-span-2 lg:col-span-1 lg:col-start-2">
                         <div class="p-6 flex-grow">
-                            <h3 class="text-xl font-semibold text-sky-700 mb-2">Health Tracking API</h3>
-                            <p class="text-sm text-slate-500 mb-3">(Node.js/GraphQL)</p>
-                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 space-y-1">
+                            <h3 class="text-xl font-semibold text-sky-700 dark:text-sky-400 mb-2">Health Tracking API</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">(Node.js/GraphQL)</p>
+                            <ul class="list-disc list-outside ml-5 text-sm text-slate-600 dark:text-slate-300 space-y-1">
                                 <li>Designed GraphQL API for fitness apps, optimizing data fetching.</li>
                                 <li>Reduced API response time by 50%.</li>
                             </ul>
                         </div>
-                        <div class="p-4 bg-slate-50 text-xs text-sky-600">Technologies: Node.js, GraphQL, API Optimization</div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-600 text-xs text-sky-600 dark:text-sky-400">Technologies: Node.js, GraphQL, API Optimization</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="education" class="py-16 sm:py-20 bg-slate-100">
+        <section id="education" class="py-16 sm:py-20 bg-slate-100 dark:bg-slate-800">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Education & Certifications</h2>
-                 <p class="mt-2 text-lg text-center text-slate-600 mb-12">My academic background and professional certifications.</p>
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Education & Certifications</h2>
+                 <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">My academic background and professional certifications.</p>
                 <div class="grid md:grid-cols-2 gap-10">
-                    <div class="bg-white p-8 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-sky-700 mb-4">Education</h3>
+                    <div class="bg-white dark:bg-slate-700 p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-semibold text-sky-700 dark:text-sky-400 mb-4">Education</h3>
                         <div class="mb-6">
-                            <h4 class="text-xl font-medium text-slate-800">Bachelor of Science in Electrical Engineering</h4>
-                            <p class="text-md text-slate-500">KFS University, Kafr El Sheikh</p>
-                            <p class="text-sm text-slate-500">Graduated: July 2022</p>
-                            <p class="mt-2 text-sm text-slate-600"><em>Relevant Coursework: Algorithms, Data Structures, Software Engineering Principles</em></p>
+                            <h4 class="text-xl font-medium text-slate-800 dark:text-slate-200">Bachelor of Science in Electrical Engineering</h4>
+                            <p class="text-md text-slate-500 dark:text-slate-400">KFS University, Kafr El Sheikh</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Graduated: July 2022</p>
+                            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300"><em>Relevant Coursework: Algorithms, Data Structures, Software Engineering Principles</em></p>
                         </div>
                     </div>
-                    <div class="bg-white p-8 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-sky-700 mb-4">Certifications</h3>
+                    <div class="bg-white dark:bg-slate-700 p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-semibold text-sky-700 dark:text-sky-400 mb-4">Certifications</h3>
                          <ul class="space-y-4">
                             <li>
-                                <h4 class="text-xl font-medium text-slate-800">Flutter Certified Developer</h4>
-                                <p class="text-md text-slate-500">Google</p>
+                                <h4 class="text-xl font-medium text-slate-800 dark:text-slate-200">Flutter Certified Developer</h4>
+                                <p class="text-md text-slate-500 dark:text-slate-400">Google</p>
                             </li>
                             <li>
-                                <h4 class="text-xl font-medium text-slate-800">Node.js: Advanced Concepts</h4>
-                                <p class="text-md text-slate-500">Udemy</p>
+                                <h4 class="text-xl font-medium text-slate-800 dark:text-slate-200">Node.js: Advanced Concepts</h4>
+                                <p class="text-md text-slate-500 dark:text-slate-400">Udemy</p>
                             </li>
                         </ul>
                     </div>
@@ -314,41 +357,41 @@
         
         <section id="languages" class="py-16 sm:py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-title text-3xl font-bold text-center mb-4">Languages</h2>
-                 <p class="mt-2 text-lg text-center text-slate-600 mb-12">My language proficiency.</p>
-                <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="section-title text-3xl font-bold text-center mb-4 text-slate-800 dark:text-slate-100">Languages</h2>
+                 <p class="mt-2 text-lg text-center text-slate-600 dark:text-slate-400 mb-12">My language proficiency.</p>
+                <div class="max-w-md mx-auto bg-white dark:bg-slate-700 p-8 rounded-xl shadow-lg">
                     <ul class="space-y-3">
                         <li class="flex justify-between items-center">
-                            <span class="text-lg text-slate-700">Arabic</span>
-                            <span class="text-md text-sky-600 font-semibold">Native</span>
+                            <span class="text-lg text-slate-700 dark:text-slate-300">Arabic</span>
+                            <span class="text-md text-sky-600 dark:text-sky-400 font-semibold">Native</span>
                         </li>
                         <li class="flex justify-between items-center">
-                            <span class="text-lg text-slate-700">English</span>
-                            <span class="text-md text-sky-600 font-semibold">Professional Proficiency</span>
+                            <span class="text-lg text-slate-700 dark:text-slate-300">English</span>
+                            <span class="text-md text-sky-600 dark:text-sky-400 font-semibold">Professional Proficiency</span>
                         </li>
                         <li class="flex justify-between items-center">
-                            <span class="text-lg text-slate-700">French</span>
-                            <span class="text-md text-sky-600 font-semibold">Beginner</span>
+                            <span class="text-lg text-slate-700 dark:text-slate-300">French</span>
+                            <span class="text-md text-sky-600 dark:text-sky-400 font-semibold">Beginner</span>
                         </li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="py-16 sm:py-20 bg-sky-700 text-white">
+        <section id="contact" class="py-16 sm:py-20 bg-sky-700 dark:bg-sky-800 text-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
-                <p class="text-lg text-sky-100 mb-8 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.</p>
+                <p class="text-lg text-sky-100 dark:text-sky-200 mb-8 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.</p>
                 <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                    <a href="mailto:abdullah.work489@gmail.com" class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-base font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 transition-colors">
+                    <a href="mailto:abdullah.work489@gmail.com" class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-base font-medium rounded-md text-sky-700 dark:text-sky-200 bg-white dark:bg-sky-600 hover:bg-sky-50 dark:hover:bg-sky-500 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
                         Email Me
                     </a>
-                     <a href="tel:+201020766083" class="inline-flex items-center justify-center px-5 py-2.5 border border-white text-base font-medium rounded-md text-white hover:bg-sky-600 transition-colors">
+                     <a href="tel:+201020766083" class="inline-flex items-center justify-center px-5 py-2.5 border border-white text-base font-medium rounded-md text-white hover:bg-sky-600 dark:hover:bg-sky-700 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
                         Call Me
                     </a>
-                    <a href="https://github.com/bedo368" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 border border-white text-base font-medium rounded-md text-white hover:bg-sky-600 transition-colors">
+                    <a href="https://github.com/bedo368" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 border border-white text-base font-medium rounded-md text-white hover:bg-sky-600 dark:hover:bg-sky-700 transition-colors">
                          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
                         GitHub
                     </a>
@@ -357,7 +400,7 @@
         </section>
     </main>
 
-    <footer class="bg-slate-800 text-slate-400 py-8">
+    <footer class="bg-slate-800 dark:bg-slate-900 text-slate-400 dark:text-slate-500 py-8">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p>&copy; <span id="currentYear"></span> Abdullah Attia. All rights reserved.</p>
             <p class="text-sm mt-1">Designed to showcase skills and experience.</p>
@@ -367,14 +410,102 @@
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // Mobile menu toggle
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        let skillsFocusChartInstance = null;
+
+        // Function to update chart options for dark/light mode
+        function updateChartTheme(chartInstance, isDarkMode) {
+            if (!chartInstance) return;
+
+            const commonTickColor = isDarkMode ? '#94a3b8' : '#475569'; // slate-400 dark, slate-600 light
+            const commonGridColor = isDarkMode ? '#334155' : '#e2e8f0'; // slate-700 dark, slate-200 light
+            const commonTooltipBg = isDarkMode ? '#1e293b' : '#0f172a'; // slate-800 dark, slate-900 light
+            const commonTooltipTitle = isDarkMode ? '#f1f5f9' : '#f8fafc'; // slate-100 dark, slate-50 light
+            const commonTooltipBody = isDarkMode ? '#cbd5e1' : '#e2e8f0'; // slate-300 dark, slate-200 light
+            
+            const lightModeBarColors = [
+                'rgba(2, 132, 199, 0.7)', 
+                'rgba(14, 165, 233, 0.7)',
+                'rgba(56, 189, 248, 0.7)',
+                'rgba(125, 211, 252, 0.7)',
+                'rgba(186, 230, 253, 0.7)' 
+            ];
+            const darkModeBarColors = [
+                'rgba(56, 189, 248, 0.7)', // sky-400
+                'rgba(125, 211, 252, 0.7)', // sky-300
+                'rgba(186, 230, 253, 0.7)', // sky-200
+                'rgba(224, 242, 254, 0.7)', // sky-100
+                'rgba(251, 244, 220, 0.7)' // amber-100 (for contrast)
+            ];
+             const lightModeBorderColors = [
+                'rgba(2, 132, 199, 1)',
+                'rgba(14, 165, 233, 1)',
+                'rgba(56, 189, 248, 1)',
+                'rgba(125, 211, 252, 1)',
+                'rgba(186, 230, 253, 1)'
+            ];
+            const darkModeBorderColors = [
+                'rgba(56, 189, 248, 1)',
+                'rgba(125, 211, 252, 1)',
+                'rgba(186, 230, 253, 1)',
+                'rgba(224, 242, 254, 1)',
+                'rgba(251, 244, 220, 1)'
+            ];
+
+
+            chartInstance.options.scales.x.ticks.color = commonTickColor;
+            chartInstance.options.scales.x.grid.color = commonGridColor;
+            chartInstance.options.scales.y.ticks.color = commonTickColor;
+            // chartInstance.options.scales.y.grid.color = commonGridColor; // y grid is hidden
+
+            chartInstance.options.plugins.tooltip.backgroundColor = commonTooltipBg;
+            chartInstance.options.plugins.tooltip.titleColor = commonTooltipTitle;
+            chartInstance.options.plugins.tooltip.bodyColor = commonTooltipBody;
+
+            chartInstance.data.datasets[0].backgroundColor = isDarkMode ? darkModeBarColors : lightModeBarColors;
+            chartInstance.data.datasets[0].borderColor = isDarkMode ? darkModeBorderColors : lightModeBorderColors;
+            
+            chartInstance.update();
+        }
+
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+                if (typeof localStorage !== 'undefined') localStorage.setItem('theme', 'dark');
+                updateChartTheme(skillsFocusChartInstance, true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+                if (typeof localStorage !== 'undefined') localStorage.setItem('theme', 'light');
+                updateChartTheme(skillsFocusChartInstance, false);
+            }
+        }
+        
+        // Set initial icon state
+        const initialTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (initialTheme === 'dark') {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            applyTheme(isDarkMode ? 'light' : 'dark');
+        });
+
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Close mobile menu when a link is clicked
         const mobileNavLinks = document.querySelectorAll('.nav-link-mobile');
         mobileNavLinks.forEach(link => {
             link.addEventListener('click', () => {
@@ -382,25 +513,9 @@
             });
         });
         
-        // Active navigation link highlighting on scroll
         const sections = document.querySelectorAll('section[id]');
         const navLinks = document.querySelectorAll('header nav a.nav-link');
 
-        function changeNav() {
-            let index = sections.length;
-
-            while(--index && window.scrollY + 100 < sections[index].offsetTop) {}
-            
-            navLinks.forEach((link) => link.classList.remove('active'));
-            if (navLinks[index]) {
-                 navLinks[index].classList.add('active');
-            } else if (window.scrollY < sections[0].offsetTop -100 && navLinks[0]) { // for hero section, highlight first actual nav link (Summary)
-                 // If above all sections (e.g. in Hero), no specific link active or highlight first
-            }
-        }
-        // Corrected active link handling for hero section
-        // The previous logic wouldn't highlight "Summary" if you were scrolled to the top hero.
-        // This attempts to highlight the "Summary" link if very close to the top or in hero.
          function changeNavRevised() {
             let currentSectionId = '';
             sections.forEach(section => {
@@ -411,11 +526,9 @@
                 }
             });
 
-            // Special handling for hero, default to summary
             if (pageYOffset < sections[0].offsetTop - (sections[0].clientHeight / 3) ) {
-                 currentSectionId = 'summary'; // Or keep it empty if no highlight for hero
+                 currentSectionId = 'summary'; 
             }
-
 
             navLinks.forEach(link => {
                 link.classList.remove('active');
@@ -425,76 +538,66 @@
             });
         }
 
-
         window.addEventListener('scroll', changeNavRevised);
-        changeNavRevised(); // Initial call
+        changeNavRevised(); 
 
-        // Skills Chart
         const ctxSkills = document.getElementById('skillsFocusChart');
         if (ctxSkills) {
-            new Chart(ctxSkills, {
-                type: 'bar', // Changed to bar for better horizontal display of categories
+            const isCurrentlyDark = document.documentElement.classList.contains('dark');
+            const initialBarColors = isCurrentlyDark ? [
+                'rgba(56, 189, 248, 0.7)', 'rgba(125, 211, 252, 0.7)', 'rgba(186, 230, 253, 0.7)', 'rgba(224, 242, 254, 0.7)', 'rgba(251, 244, 220, 0.7)'
+            ] : [
+                'rgba(2, 132, 199, 0.7)', 'rgba(14, 165, 233, 0.7)', 'rgba(56, 189, 248, 0.7)', 'rgba(125, 211, 252, 0.7)', 'rgba(186, 230, 253, 0.7)'
+            ];
+            const initialBorderColors = isCurrentlyDark ? [
+                'rgba(56, 189, 248, 1)', 'rgba(125, 211, 252, 1)', 'rgba(186, 230, 253, 1)', 'rgba(224, 242, 254, 1)', 'rgba(251, 244, 220, 1)'
+            ] : [
+                'rgba(2, 132, 199, 1)', 'rgba(14, 165, 233, 1)', 'rgba(56, 189, 248, 1)', 'rgba(125, 211, 252, 1)', 'rgba(186, 230, 253, 1)'
+            ];
+
+            skillsFocusChartInstance = new Chart(ctxSkills, {
+                type: 'bar',
                 data: {
                     labels: ['Flutter & Mobile Frontend', 'Backend (Node.js)', 'Databases & Cloud/DevOps', 'UI/UX & Design Principles', 'Algorithms & Design Patterns'],
                     datasets: [{
                         label: 'Relative Focus / Experience',
-                        data: [90, 75, 70, 65, 80], // Illustrative values
-                        backgroundColor: [
-                            'rgba(2, 132, 199, 0.7)', // sky-600
-                            'rgba(14, 165, 233, 0.7)', // sky-500
-                            'rgba(56, 189, 248, 0.7)', // sky-400
-                            'rgba(125, 211, 252, 0.7)',// sky-300
-                            'rgba(186, 230, 253, 0.7)' // sky-200
-                        ],
-                        borderColor: [
-                            'rgba(2, 132, 199, 1)',
-                            'rgba(14, 165, 233, 1)',
-                            'rgba(56, 189, 248, 1)',
-                            'rgba(125, 211, 252, 1)',
-                            'rgba(186, 230, 253, 1)'
-                        ],
+                        data: [90, 75, 70, 65, 80],
+                        backgroundColor: initialBarColors,
+                        borderColor: initialBorderColors,
                         borderWidth: 1
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // This makes it a horizontal bar chart
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
                         x: {
                             beginAtZero: true,
-                            max: 100, // Assuming percentages
-                            ticks: {
-                                color: '#475569' // slate-600
-                            },
-                             grid: {
-                                color: '#e2e8f0' // slate-200
-                            }
+                            max: 100,
+                            ticks: { color: isCurrentlyDark ? '#94a3b8' : '#475569' },
+                            grid: { color: isCurrentlyDark ? '#334155' : '#e2e8f0' }
                         },
                         y: {
-                           ticks: {
-                                color: '#475569', // slate-600
-                                callback: function(value, index, values) { // Label wrapping
+                           ticks: { 
+                                color: isCurrentlyDark ? '#94a3b8' : '#475569',
+                                callback: function(value, index, values) {
                                     const label = this.getLabelForValue(value);
                                     if (label.length > 16) {
-                                        return label.match(/.{1,16}/g); // Split into lines of 16 chars
+                                        return label.match(/.{1,16}/g);
                                     }
                                     return label;
                                 }
                             },
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false }
                         }
                     },
                     plugins: {
-                        legend: {
-                            display: false // Hiding legend for a cleaner look with one dataset
-                        },
+                        legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#0f172a', // slate-900
-                            titleColor: '#f8fafc', // slate-50
-                            bodyColor: '#e2e8f0', // slate-200
+                            backgroundColor: isCurrentlyDark ? '#1e293b' : '#0f172a',
+                            titleColor: isCurrentlyDark ? '#f1f5f9' : '#f8fafc',
+                            bodyColor: isCurrentlyDark ? '#cbd5e1' : '#e2e8f0',
                             callbacks: {
                                 label: function(context) {
                                     return `${context.dataset.label}: ${context.raw}%`;
@@ -505,8 +608,6 @@
                 }
             });
         }
-
     </script>
-    
 </body>
 </html>
